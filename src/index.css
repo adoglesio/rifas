@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: #C9A876;
+  color: #0B1220;
+}
+
+/* Assinatura visual: cartão de talão de rifa, com "perfuração" no topo */
+.ticket-card {
+  position: relative;
+  background: #141C30;
+  border: 1px solid #2C3A56;
+  border-radius: 4px;
+}
+
+.ticket-card::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background-image: radial-gradient(circle at 6px 5px, #0B1220 3px, transparent 3.5px);
+  background-size: 16px 10px;
+  background-repeat: repeat-x;
+}
+
+.ticket-divider {
+  border: none;
+  border-top: 2px dashed #2C3A56;
+  margin: 0;
+}
+
+/* Scrollbar discreta */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #0B1220;
+}
+::-webkit-scrollbar-thumb {
+  background: #2C3A56;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #6B5A3D;
+}
+
+/* Foco visível (acessibilidade) */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid #C9A876;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

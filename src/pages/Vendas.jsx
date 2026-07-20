@@ -11,6 +11,7 @@ const FILTROS_VAZIOS = {
   produtoNome: '',
   dataInicial: '',
   dataFinal: '',
+  retirado: '', // '' = todos | 'sim' | 'nao'
 }
 
 export default function Vendas() {
@@ -36,6 +37,8 @@ export default function Vendas() {
     if (filtros.produtoNome) query = query.eq('produto_nome', filtros.produtoNome)
     if (filtros.dataInicial) query = query.gte('data_venda', `${filtros.dataInicial}T00:00:00`)
     if (filtros.dataFinal) query = query.lte('data_venda', `${filtros.dataFinal}T23:59:59`)
+    if (filtros.retirado === 'sim') query = query.eq('retirado', true)
+    if (filtros.retirado === 'nao') query = query.eq('retirado', false)
 
     const { data, error } = await query.limit(1000)
     if (!error) setVendas(data || [])
@@ -55,6 +58,8 @@ export default function Vendas() {
   }, [vendas])
 
   const totalValor = useMemo(() => vendas.reduce((acc, v) => acc + Number(v.valor || 0), 0), [vendas])
+  const totalRetirados = useMemo(() => vendas.filter((v) => v.retirado).length, [vendas])
+  const totalPendentes = vendas.length - totalRetirados
 
   return (
     <div>
@@ -104,6 +109,18 @@ export default function Vendas() {
           </div>
           <Campo label="Data inicial" type="date" value={filtros.dataInicial} onChange={(v) => setFiltros({ ...filtros, dataInicial: v })} />
           <Campo label="Data final" type="date" value={filtros.dataFinal} onChange={(v) => setFiltros({ ...filtros, dataFinal: v })} />
+          <div>
+            <label className="block text-xs text-muted mb-1.5">Retirada</label>
+            <select
+              value={filtros.retirado}
+              onChange={(e) => setFiltros({ ...filtros, retirado: e.target.value })}
+              className="w-full bg-surface2 border border-border rounded-md px-3 py-2 text-sm text-cream focus:border-gold outline-none"
+            >
+              <option value="">Todos</option>
+              <option value="sim">Já retirado</option>
+              <option value="nao">Ainda não retirado</option>
+            </select>
+          </div>
         </div>
         <div className="flex gap-2 mt-4">
           <button
@@ -121,6 +138,8 @@ export default function Vendas() {
       <div className="flex flex-wrap gap-3 mb-5">
         <Badge label={`${vendas.length} venda(s)`} />
         <Badge label={formatCurrency(totalValor)} accent="green" />
+        <Badge label={`${totalRetirados} retirado(s)`} accent="green" />
+        <Badge label={`${totalPendentes} pendente(s)`} accent={totalPendentes > 0 ? 'red' : undefined} />
         {Object.entries(resumoPorProduto).map(([nome, qtd]) => (
           <Badge key={nome} label={`${nome}: ${qtd}`} />
         ))}
@@ -136,18 +155,19 @@ export default function Vendas() {
               <th className="px-4 py-3">Comprador</th>
               <th className="px-4 py-3">CPF</th>
               <th className="px-4 py-3">Vendedor</th>
+              <th className="px-4 py-3">Retirada</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-muted">
+                <td colSpan={7} className="px-4 py-6 text-center text-muted">
                   carregando…
                 </td>
               </tr>
             ) : vendas.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-muted">
+                <td colSpan={7} className="px-4 py-6 text-center text-muted">
                   Nenhuma venda encontrada.
                 </td>
               </tr>
@@ -160,6 +180,13 @@ export default function Vendas() {
                   <td className="px-4 py-3">{v.comprador_nome}</td>
                   <td className="px-4 py-3 font-mono text-xs">{formatCpf(v.comprador_cpf)}</td>
                   <td className="px-4 py-3">{v.vendedor_nome}</td>
+                  <td className="px-4 py-3">
+                    {v.retirado ? (
+                      <span className="text-xs font-mono text-green">✓ retirado</span>
+                    ) : (
+                      <span className="text-xs font-mono text-muted">pendente</span>
+                    )}
+                  </td>
                 </tr>
               ))
             )}
@@ -185,6 +212,11 @@ function Campo({ label, value, onChange, type = 'text' }) {
 }
 
 function Badge({ label, accent }) {
-  const color = accent === 'green' ? 'text-green border-green/40' : 'text-cream border-border'
+  const color =
+    accent === 'green'
+      ? 'text-green border-green/40'
+      : accent === 'red'
+      ? 'text-red border-red/40'
+      : 'text-cream border-border'
   return <span className={`px-3 py-1.5 rounded-full border font-mono text-xs ${color}`}>{label}</span>
 }

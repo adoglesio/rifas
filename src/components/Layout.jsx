@@ -9,6 +9,7 @@ const LINKS = [
   { to: '/vendedores', label: 'Vendedores', num: '04' },
   { to: '/compradores', label: 'Compradores', num: '05' },
   { to: '/produtos', label: 'Produtos', num: '06' },
+  { to: '/retirada', label: 'Retirada', num: '07' },
 ]
 
 export default function Layout({ children }) {

@@ -6,12 +6,14 @@ import { formatCurrency, formatDateTime, formatCpf } from './format'
 const COLUNAS = [
   { header: 'Data/Hora', key: 'data_venda', fmt: formatDateTime },
   { header: 'Produto', key: 'produto_nome' },
+  { header: 'Qtd', key: 'quantidade' },
   { header: 'Valor', key: 'valor', fmt: formatCurrency },
   { header: 'Comprador', key: 'comprador_nome' },
   { header: 'CPF Comprador', key: 'comprador_cpf', fmt: formatCpf },
   { header: 'Telefone Comprador', key: 'comprador_telefone' },
   { header: 'Vendedor', key: 'vendedor_nome' },
   { header: 'CPF Vendedor', key: 'vendedor_cpf', fmt: formatCpf },
+  { header: 'Retirada', key: 'retirado', fmt: (v) => (v ? 'Retirado' : 'Pendente') },
 ]
 
 export function exportVendasExcel(vendas, nomeArquivo = 'vendas-rifa') {
@@ -45,7 +47,7 @@ export function exportVendasPdf(vendas, titulo = 'Relatório de Vendas — Rifa'
     body: vendas.map((v) => COLUNAS.map((c) => (c.fmt ? c.fmt(v[c.key]) : v[c.key] || ''))),
     styles: { fontSize: 8 },
     headStyles: { fillColor: [193, 68, 60] },
-    foot: [['', '', formatCurrency(total), '', '', '', '', '']],
+    foot: [['', '', '', formatCurrency(total), '', '', '', '', '', '']],
     footStyles: { fillColor: [11, 18, 32], textColor: 255, fontStyle: 'bold' },
   })
 

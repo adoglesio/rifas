@@ -38,7 +38,19 @@ export default function Graficos() {
       if (rank.data) setRanking(rank.data)
       if (mes.data) setPorMes(mes.data.map((m) => ({ ...m, mes: formatDate(m.mes) })))
     }
+
     load()
+
+    const channel = supabase
+      .channel('graficos-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'vendas' }, load)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'produtos' }, load)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'vendedores' }, load)
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [])
 
   return (

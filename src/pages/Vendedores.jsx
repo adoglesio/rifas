@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { criarLoginVendedor } from '../lib/criarLoginVendedor'
+import { excluirVendedorCompleto } from '../lib/excluirVendedor'
 import {
   formatCpf,
   formatCurrency,
@@ -109,6 +110,28 @@ export default function Vendedores() {
   async function alternarAtivo(v) {
     await supabase.from('vendedores').update({ ativo: !v.ativo }).eq('id', v.id)
     carregar()
+  }
+
+  async function excluir(v) {
+    if (!confirm(`Excluir "${v.nome}" definitivamente, incluindo o login dele? Isso só funciona se ele nunca fez nenhuma venda.`))
+      return
+
+    const { error } = await excluirVendedorCompleto(v.id)
+    if (error) {
+      alert(error.message)
+      return
+    }
+    carregar()
+  }
+
+  async function enviarLinkSenha(v) {
+    setErro('')
+    setMensagem('')
+    const { error } = await supabase.auth.resetPasswordForEmail(v.email, {
+      redirectTo: `${window.location.origin}/redefinir-senha`,
+    })
+    if (error) return setErro(`Não foi possível enviar o link: ${error.message}`)
+    setMensagem(`Link de redefinição enviado pro e-mail ${v.email}.`)
   }
 
   async function verHistorico(v) {
@@ -240,8 +263,16 @@ export default function Vendedores() {
                         <button onClick={() => iniciarEdicao(v)} className="text-muted hover:text-gold">
                           editar
                         </button>
+                        {v.auth_user_id && (
+                          <button onClick={() => enviarLinkSenha(v)} className="text-muted hover:text-gold">
+                            redefinir senha
+                          </button>
+                        )}
                         <button onClick={() => alternarAtivo(v)} className="text-muted hover:text-red">
                           {v.ativo ? 'desativar' : 'reativar'}
+                        </button>
+                        <button onClick={() => excluir(v)} className="text-muted hover:text-red">
+                          excluir
                         </button>
                       </td>
                     </tr>

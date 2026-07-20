@@ -9,6 +9,8 @@ import Vendas from './pages/Vendas'
 import Vendedores from './pages/Vendedores'
 import Compradores from './pages/Compradores'
 import Produtos from './pages/Produtos'
+import RedefinirSenha from './pages/RedefinirSenha'
+import Retirada from './pages/Retirada'
 
 function Protegida({ children }) {
   return (
@@ -23,12 +25,14 @@ export default function App() {
     <AuthProvider>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/redefinir-senha" element={<RedefinirSenha />} />
         <Route path="/" element={<Protegida><Painel /></Protegida>} />
         <Route path="/graficos" element={<Protegida><Graficos /></Protegida>} />
         <Route path="/vendas" element={<Protegida><Vendas /></Protegida>} />
         <Route path="/vendedores" element={<Protegida><Vendedores /></Protegida>} />
         <Route path="/compradores" element={<Protegida><Compradores /></Protegida>} />
         <Route path="/produtos" element={<Protegida><Produtos /></Protegida>} />
+        <Route path="/retirada" element={<Protegida><Retirada /></Protegida>} />
       </Routes>
     </AuthProvider>
   )
